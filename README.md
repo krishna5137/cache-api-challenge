@@ -6,10 +6,6 @@
 
 2) Replace `CACHE_DB_URI` with local mongo uri or mongo Atlas app connection string.
 
-  2.1) white-listed all IP Addresses(anywhere access) to connect to my cluster
-  
-  2.2) db_username: krishna password: Krish2187$
-
 3) Replace `CACHE_NS` with the name of mongo database
 ```
 CACHE_DB_URI=mongodb+srv://krishna:Krish2187$@cluster0.jb49a.mongodb.net/cacheDB?retryWrites=true&w=majority
@@ -37,7 +33,36 @@ npm run test
 npm start
 ```
 
+## Supported routes
+
+- `GET` /api/v1/cache/:id 
+    - Retrieves the requested cache item or creates a new one( v4 of UUID is used to generate random dummy string) 
+
+- `GET` /api/v1/cache
+    - Retrieves all cache items
+
+- `PUT` /api/v1/cache/:id
+    - Sample Payload
+    
+    ``` 
+        {
+            "value": "newValue",    
+        }
+    ```
+    - Update the cache's value with new value, TTL is updated using `Date.now()`
+
+- `DELETE` /api/v1/cache/:id
+    - Deletes a single cache item by id
+
+- `DELETE` /api/v1/cache
+    - Deletes all cache items
+
+## Assumptions
+
+1) Deleted the oldest entry when Cache is full(i.e exceeds Cache limit)
+
 ## Future Improvements
+
 1) Better Async Error Handling and Server Side Validations
 
 2) Tests won't run at this moment. Use of Mocha/Chai to test the controllers
