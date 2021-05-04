@@ -9,4 +9,6 @@ router.get("/:id", cacheController.getCacheItemById)
 router.delete("/:id", cacheController.deleteCacheByKey)
 router.delete("/", cacheController.flushAllKeys)
 
+router.put("/:id", cacheController.updateCacheById)
+
 export default router;

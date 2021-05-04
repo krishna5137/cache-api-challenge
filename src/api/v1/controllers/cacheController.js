@@ -108,4 +108,16 @@ cacheController.deleteCacheByKey = async (req, res) => {
   }
 }
 
+cacheController.updateCacheById = async (req, res) => {
+  try {
+    const query = { key: req.params.id }
+    const updatePayload = { value: req.body.value, lastAccess: Date.now()}
+    const queryOptioins = { new: true }
+    const updatedCache = await Cache.findOneAndUpdate(query, updatePayload, queryOptioins)
+    res.status(200).json(updatedCache)
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
 export default cacheController
