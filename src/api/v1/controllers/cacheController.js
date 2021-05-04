@@ -1,8 +1,6 @@
 import Cache from "../models/cache.js"
 import { uuid } from "uuidv4"
 
-const cacheController = {}
-
 const createDummyCache = async (key) => {
   try {
     // check for overflow
@@ -18,6 +16,14 @@ const createDummyCache = async (key) => {
     console.log(err)
   }
 }
+
+// Boolean flag to check for ttl expiry
+const isTTLExceeded = (cacheItem) => {
+  console.log("Inside timeout flag!")
+  Boolean(Date.now() - cacheItem.lastAccess >= 1000 * process.env.TTL)
+}
+
+const cacheController = {}
 
 cacheController.getAllCacheItems = async (req, res) => {
   try {
@@ -45,7 +51,15 @@ cacheController.getCacheItemById = async(req, res) => {
     }
 
     // check for expired Items
-    // if expired update with random dummy
+    if (isTTLExceeded(cacheItem)) {
+      console.log("Cache timedout!!")
+      // if expired, remove and add random dummy
+      await Cache.findByIdAndDelete({ _id: cacheItem._id})
+      const newCache = await createDummyCache(id)
+      // update cache & return
+      res.status(201).send(newCache.value)
+      return;
+    }
 
     console.log("Cache Hit")
     res.status(200).send(cacheItem.value)
