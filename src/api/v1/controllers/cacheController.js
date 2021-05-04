@@ -1,9 +1,27 @@
 import Cache from "../models/cache.js"
 import { uuid } from "uuidv4"
 
+const cacheOverflowHelper = async () => {
+  // deleting the oldest cacheItem
+  try {
+    const oldCache = (await Cache.find().sort({ lastAccess: 1}))[0]
+    await Cache.findByIdAndDelete({ _id: oldCache._id })
+  } catch (err) {
+    console.log(err)
+    throw err
+  }
+  
+}
+
 const createDummyCache = async (key) => {
   try {
     // check for overflow
+    const cacheItemsCount = Cache.countDocuments({})
+
+    if (cacheItemsCount >= process.env.MAX_CACHE_LIMIT) {
+      // logic to handle overflow
+      await cacheOverflowHelper()
+    }
     
     const cacheItem = new Cache({
       key,
@@ -20,7 +38,7 @@ const createDummyCache = async (key) => {
 // Boolean flag to check for ttl expiry
 const isTTLExceeded = (cacheItem) => {
   console.log("Inside timeout flag!")
-  Boolean(Date.now() - cacheItem.lastAccess >= 1000 * process.env.TTL)
+  return Boolean(Date.now() - cacheItem.lastAccess >= 1000 * process.env.TTL)
 }
 
 const cacheController = {}
@@ -52,6 +70,7 @@ cacheController.getCacheItemById = async(req, res) => {
 
     // check for expired Items
     if (isTTLExceeded(cacheItem)) {
+      //console.log(isTTLExceeded(cacheItem))
       console.log("Cache timedout!!")
       // if expired, remove and add random dummy
       await Cache.findByIdAndDelete({ _id: cacheItem._id})
