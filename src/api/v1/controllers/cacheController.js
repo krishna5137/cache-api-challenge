@@ -1,22 +1,13 @@
 import Cache from "../models/cache.js"
-import { uuid } from "uuidv4"
+import { v4 } from "uuid"
 
-const cacheOverflowHelper = async () => {
-  // deleting the oldest cacheItem
-  try {
-    const oldCache = (await Cache.find().sort({ lastAccess: 1}))[0]
-    await Cache.findByIdAndDelete({ _id: oldCache._id })
-  } catch (err) {
-    console.log(err)
-    throw err
-  }
-  
-}
+const cacheController = {}
+
 
 const createDummyCache = async (key) => {
   try {
     // check for overflow
-    const cacheItemsCount = Cache.countDocuments({})
+    const cacheItemsCount = await Cache.countDocuments({})
 
     if (cacheItemsCount >= process.env.MAX_CACHE_LIMIT) {
       // logic to handle overflow
@@ -25,13 +16,25 @@ const createDummyCache = async (key) => {
     
     const cacheItem = new Cache({
       key,
-      value: uuid(), // uuid to generate unique random values
+      value: v4(), // uuid to generate unique random values
       lastAccess: Date.now()
     })
 
     return await cacheItem.save()
   } catch (err) {
     console.log(err)
+    throw err
+  }
+}
+
+const cacheOverflowHelper = async () => {
+  // deleting the oldest cacheItem
+  try {
+    const oldCache = (await Cache.find().sort({ lastAccess: 'asc' }))[0]
+    await Cache.findByIdAndDelete({ _id: oldCache._id })
+  } catch (err) {
+    console.log(err)
+    throw err
   }
 }
 
@@ -40,8 +43,6 @@ const isTTLExceeded = (cacheItem) => {
   console.log("Inside timeout flag!")
   return Boolean(Date.now() - cacheItem.lastAccess >= 1000 * process.env.TTL)
 }
-
-const cacheController = {}
 
 cacheController.getAllCacheItems = async (req, res) => {
   try {
@@ -70,7 +71,6 @@ cacheController.getCacheItemById = async(req, res) => {
 
     // check for expired Items
     if (isTTLExceeded(cacheItem)) {
-      //console.log(isTTLExceeded(cacheItem))
       console.log("Cache timedout!!")
       // if expired, remove and add random dummy
       await Cache.findByIdAndDelete({ _id: cacheItem._id})
@@ -84,6 +84,15 @@ cacheController.getCacheItemById = async(req, res) => {
     res.status(200).send(cacheItem.value)
     // reset ttl on every read/cache hit
     await Cache.findByIdAndUpdate({_id: cacheItem._id}, { lastAccess: Date.now() })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+cacheController.flushAll = async (req, res) => {
+  try {
+    await Cache.deleteMany({})
+    res.status(200).send("Delete all cache items success!")
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
