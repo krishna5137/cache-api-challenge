@@ -30,25 +30,30 @@ cacheController.getAllCacheItems = async (req, res) => {
 }
 
 cacheController.getCacheItemById = async(req, res) => {
-  const id = req.params.id;
-  let cacheItem = await Cache.findOne({ key: id})
+  try {
+    const id = req.params.id;
+    let cacheItem = await Cache.findOne({ key: id})
 
-  // if no cacheItem create a new random dummy
-  if (!cacheItem) {
-    console.log("Cache Miss")
-    // create new random string for the key
-    const newCache = await createDummyCache(id)
-    // update cache & return
-    res.status(201).send(newCache.value)
-    return;
+    // if no cacheItem create a new random dummy
+    if (!cacheItem) {
+      console.log("Cache Miss")
+      // create new random string for the key
+      const newCache = await createDummyCache(id)
+      // update cache & return
+      res.status(201).send(newCache.value)
+      return;
+    }
+
+    // check for expired Items
+    // if expired update with random dummy
+
+    console.log("Cache Hit")
+    res.status(200).send(cacheItem.value)
+    // reset ttl on every read/cache hit
+    await Cache.findByIdAndUpdate({_id: cacheItem._id}, { lastAccess: Date.now() })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
   }
-
-  // check for expired Items
-
-  console.log("Cache Hit")
-  res.status(200).send(cacheItem.value)
-
-  // reset ttl on every read/cache hit
 }
 
 export default cacheController
