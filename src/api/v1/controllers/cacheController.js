@@ -89,12 +89,22 @@ cacheController.getCacheItemById = async(req, res) => {
   }
 }
 
-cacheController.flushAll = async (req, res) => {
+cacheController.flushAllKeys = async (req, res) => {
   try {
     await Cache.deleteMany({})
     res.status(200).send("Delete all cache items success!")
   } catch (err) {
     res.status(500).json({ message: err.message })
+  }
+}
+
+cacheController.deleteCacheByKey = async (req, res) => {
+  try {
+    const id = req.params.id
+    const deletedCache = await Cache.findOneAndDelete({ key: id })
+    res.status(200).json(deletedCache)
+  } catch (err) {
+    res.status(500).json({ message: err.message})
   }
 }
 

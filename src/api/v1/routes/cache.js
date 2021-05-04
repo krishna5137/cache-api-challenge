@@ -6,6 +6,7 @@ const router = express.Router()
 router.get("/", cacheController.getAllCacheItems)
 router.get("/:id", cacheController.getCacheItemById)
 
-router.delete("/", cacheController.flushAll)
+router.delete("/:id", cacheController.deleteCacheByKey)
+router.delete("/", cacheController.flushAllKeys)
 
 export default router;
