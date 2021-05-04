@@ -5,7 +5,10 @@
 1) Create a `.env` file in the root directory.
 
 2) Replace `CACHE_DB_URI` with local mongo uri or mongo Atlas app connection string.
-white-listed anywhere access to connect to my cluster
+
+  2.1) white-listed all IP Addresses(anywhere access) to connect to my cluster
+  
+  2.2) db_username: krishna password: Krish2187$
 
 3) Replace `CACHE_NS` with the name of mongo database
 ```
@@ -23,9 +26,6 @@ TTL=10
 npm install
 
 launch mongodb instance (I used mongo atlas to host the db)
-
-db_username: krishna
-password: Krish2187$
 ```
 
 2) Run the tests
