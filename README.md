@@ -24,7 +24,7 @@ npm install
 launch mongodb instance (I used mongo atlas to host the db)
 ```
 
-2) Run the tests
+2) Run the tests (yet to be implemented)
 ```javascript
 npm run test
 ```
