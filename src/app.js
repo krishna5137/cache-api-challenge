@@ -2,12 +2,10 @@ import dotenv from 'dotenv'
 import express from 'express'
 import mongoose from 'mongoose'
 import cors from 'cors'
-import cacheRouter from './api/v1/routes/cache'
+import cacheRouter from './api/v1/routes/cache.js'
 
 dotenv.config()
 const app = express()
-
-const cacheRouter = require('./routes/cache')
 
 app.use(cors())
 app.use(express.json())
@@ -25,4 +23,4 @@ db.once('open', () => console.log('Mongo Connection Successful!'))
 app.use("/api/v1/cache", cacheRouter)
 app.use("*", (req, res) => res.status(404).json({ error: "Requested Page Cannot be found!"}))
 
-module.exports = app
+export default app

@@ -18,4 +18,4 @@ const cacheSchema = new mongoose.Schema({
 
 const Cache = mongoose.model('Cache', cacheSchema)
 
-module.exports = Cache
+export default Cache
